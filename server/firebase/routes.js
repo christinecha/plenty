@@ -30,8 +30,8 @@ const routeFns = {
 }
 
 const routes = [
-  'items',
-  'items/:id'
+  'access-tokens',
+  'access-tokens/:id'
 ]
 
 module.exports = {

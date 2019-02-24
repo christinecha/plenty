@@ -1,4 +1,4 @@
-// import './LinkAccounts'
+import './LinkAccounts'
 // import './Accounts'
 
 import React from 'react'

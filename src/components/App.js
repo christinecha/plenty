@@ -6,6 +6,7 @@ import Transactions from './Transactions'
 const App = () => (
   <main>
     <header>
+      <Link to="/">Overview</Link>
       <Link to="/transactions">Transactions</Link>
     </header>
 

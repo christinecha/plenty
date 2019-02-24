@@ -1,5 +1,5 @@
 const plaid = require('plaid')
-const { getInstitutions, updateInstitution } = require('../../config-scripts/institutions')
+const { routeFns } = require('../firebase/routes')
 const { PLAID_PUBLIC_KEY } = require('../../env')
 
 let secrets = {}
@@ -19,7 +19,7 @@ const plaidClient = new plaid.Client(
 )
 
 const getAccessToken = (req, res) => {
-  const { public_token, institution } = req.body
+  const { public_token, institution, ...rest } = req.body
   const { institution_id } = institution
 
   plaidClient.exchangePublicToken(
@@ -33,10 +33,10 @@ const getAccessToken = (req, res) => {
       console.log('Access Token: ' + access_token)
       console.log('Item ID: ' + item_id)
 
-      updateInstitution(institution_id, {
-        ...req.body,
-        access_token,
-        item_id
+      routeFns.put(`institutions/${institution_id}`)({
+        ...institution,
+        ...rest,
+        access_token
       })
 
       res.json(tokenResponse)
@@ -44,68 +44,67 @@ const getAccessToken = (req, res) => {
   )
 }
 
-const getAllInstitutions = (req, res) => {
-  const institutions = getInstitutions()
-  res.json(institutions)
-}
 
 const getTransactions = (req, res) => {
   const { institutionId, startDate, endDate } = req.body
-  const institutions = getInstitutions()
-  const { access_token } = institutions[institutionId]
-  const start_date = startDate || '2019-01-01'
-  const end_date = endDate || '2019-02-01'
 
-  console.log('getting', access_token)
+  routeFns.get('institutions')()
+  .then((institutions) => {
+    const { access_token } = institutions[institutionId]
+    const start_date = startDate || '2019-01-01'
+    const end_date = endDate || '2019-02-01'
 
-  let allTransactions = []
+    console.log('getting', access_token)
 
-  const continueGetting = (count = 500, page = 0) => {
-    plaidClient.getTransactions(
-      access_token,
-      start_date,
-      end_date,
-      { count, offset: page * count },
-      (err, plaidRes) => {
-        if (err != null) {
-          console.log('Could not get transactions!' + '\n' + JSON.stringify(err))
-          return res.json(err)
+    let allTransactions = []
+
+    const continueGetting = (count = 500, page = 0) => {
+      plaidClient.getTransactions(
+        access_token,
+        start_date,
+        end_date,
+        { count, offset: page * count },
+        (err, plaidRes) => {
+          if (err != null) {
+            console.log('Could not get transactions!' + '\n' + JSON.stringify(err))
+            return res.json(err)
+          }
+
+          allTransactions = allTransactions.concat(plaidRes.transactions)
+
+          if (plaidRes.transactions.length === count) {
+            continueGetting(count, page + 1)
+          } else {
+            res.json(allTransactions)
+          }
         }
+      );
+    }
 
-        allTransactions = allTransactions.concat(plaidRes.transactions)
-
-        if (plaidRes.transactions.length === count) {
-          continueGetting(count, page + 1)
-        } else {
-          res.json(allTransactions)
-        }
-      }
-    );
-  }
-
-  continueGetting()
+    continueGetting()
+  })
 }
 
 const getBalance = (req, res) => {
   const { institution_id } = req.body
-  const institutions = getInstitutions()
-  const { access_token } = institutions[institution_id]
 
-  plaidClient.getBalance(access_token,
-    (err, result) => {
-      if (err != null) {
-        console.log('Could not get balance!' + '\n' + JSON.stringify(err))
-        return res.json(err)
+  routeFns.get(`institutions/${institution_id}`)()
+  .then(({ access_token }) => {
+    plaidClient.getBalance(access_token,
+      (err, result) => {
+        if (err != null) {
+          console.log('Could not get balance!' + '\n' + JSON.stringify(err))
+          return res.json(err)
+        }
+
+        res.json(result.accounts)
       }
-
-      res.json(result.accounts)
-    }
-  )
+    )
+  })
 }
 
 const addRoutes = (app) => {
   app.post('/get_access_token', getAccessToken)
-  app.post('/get-institutions', getAllInstitutions)
   app.post('/get-transactions', getTransactions)
   app.post('/get-balance', getBalance)
 }

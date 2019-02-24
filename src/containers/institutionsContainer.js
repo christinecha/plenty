@@ -8,15 +8,15 @@ class InstitutionsContainer extends Container {
   }
 
   getInstitutions() {
-    axios.post('/get-institutions')
+    axios.get('/api/institutions')
       .then(res => {
         const institutionPromises = Object.keys(res.data).map(key => {
           return axios.post('/get-balance', { institution_id: key })
             .then(({ data: accounts }) => {
-              const { institution, ...rest } = res.data[key]
+              const institution = res.data[key]
+              console.log(institution)
               return ({
-                ...rest,
-                name: institution.name,
+                ...institution,
                 id: key,
                 accounts,
               })

@@ -1,6 +1,48 @@
-.institution {
+.transactions-view .date-range-form {
+  padding-top: 10px;
+  padding-bottom: 30px;
+}
+.transactions-wrapper {
+  display: flex;
+}
+.transactions-wrapper .transactions {
+  flex: 1;
+}
+.transactions-wrapper .summary {
+  width: 200px;
+  margin-left: 20px;
+}
+.main-category,
+.sub-category {
   margin-bottom: 20px;
 }
-.account {
-  margin-bottom: 20px;
+.main-category-header,
+.sub-category-header {
+  display: flex;
+}
+.main-category-header .amt,
+.sub-category-header .amt {
+  margin-left: auto;
+  margin-right: 0;
+}
+.main-category-header {
+  cursor: pointer;
+}
+.main-category-header:hover {
+  color: blue;
+}
+.sub-category-header {
+  margin: 10px 0;
+}
+.transaction {
+  display: flex;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.transaction:hover {
+  color: blue;
+}
+.transaction .amount {
+  margin-left: auto;
+  margin-right: 0;
 }

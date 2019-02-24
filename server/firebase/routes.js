@@ -30,11 +30,25 @@ const routeFns = {
 }
 
 const routes = [
-  'access-tokens',
-  'access-tokens/:id'
+  'institutions',
+  'institutions/:id',
+  'transaction-rules',
+  'transaction-rules/:id'
 ]
+
+const postNew = (key) => {
+  return async (data) => {
+    const newRef = db.child(key).push()
+    await newRef.set({
+      ...data,
+      key: newRef.key,
+    })
+    return newRef.key
+  }
+}
 
 module.exports = {
   routeFns,
-  routes
+  routes,
+  postNew
 }

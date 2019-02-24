@@ -1,4 +1,4 @@
-const { routes, routeFns } = require('./routes')
+const { routes, routeFns, postNew } = require('./routes')
 const multer = require('multer')
 const upload = multer()
 
@@ -23,16 +23,20 @@ const generateDynamicRoute = (route, req) => {
 const addFirebaseRoutes = (app) => {
   routes.forEach(route => {
     const types = Object.keys(routeFns)
-    const parts = route.split('/')
 
     types.forEach(type => {
-      app[type](`/firebase/${route}`, upload.array(), async (req, res) => {
+      app[type](`/api/${route}`, upload.array(), async (req, res) => {
         const modifiedRoute = generateDynamicRoute(route, req)
         const routeFn = routeFns[type](modifiedRoute)
         const value = await routeFn(req.body)
 
         res.json(value)
       })
+    })
+
+    app.post(`/api/${route}/new`, upload.array(), async (req, res) => {
+      const value = await postNew(route)(req.body)
+      res.json(value)
     })
   })
 }

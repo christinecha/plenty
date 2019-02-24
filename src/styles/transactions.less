@@ -1,13 +1,58 @@
-.transactions {
-  .main-category {
-    margin-bottom: 50px;
-    padding: 20px;
+.transactions-view {
+  .date-range-form {
+    padding-top: 10px;
+    padding-bottom: 30px;
   }
+}
+
+.transactions-wrapper {
+  display: flex;
+
+  .transactions {
+    flex: 1;
+  }
+
+  .summary {
+    width: 200px;
+    margin-left: 20px;
+  }
+}
+
+.main-category,
+.sub-category {
+  margin-bottom: 20px;
+}
+
+.main-category-header,
+.sub-category-header {
+  display: flex;
+
+  .amt {
+    margin-left: auto;
+    margin-right: 0;
+  }
+}
+
+.main-category-header {
+  cursor: pointer;
+
+  &:hover {
+    color: blue;
+  }
+}
+
+.sub-category-header {
+  margin: 10px 0;
 }
 
 .transaction {
   display: flex;
   margin-bottom: 10px;
+  cursor: pointer;
+
+  &:hover {
+    color: blue;
+  }
 
   .amount {
     margin-left: auto;
